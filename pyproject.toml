@@ -10,7 +10,7 @@ dependencies = ["ftl"]
 ftl = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/*", "modules/echo"]
+members = ["packages/*", "modules/echo", "python-runtime"]
 
 
 [build-system]

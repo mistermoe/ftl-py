@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+message RuntimeRequest {
+    string module = 1;
+    string verb = 2;
+    optional bytes payload = 3;  // optional byte array
+}
+
+message RuntimeResponse {
+    oneof result {
+        bytes payload = 1;
+        string error = 2;
+    }
+}
