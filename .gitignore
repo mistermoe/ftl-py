@@ -1,3 +1,7 @@
+# IDE Configs
+**/ftl.iml
+.idea/
+
 # Python-generated files
 __pycache__/
 *.py[oc]

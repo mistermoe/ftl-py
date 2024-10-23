@@ -1,13 +1,12 @@
 import functools
 import inspect
 from typing import Any, Callable, Optional, TypeVar, Union, get_type_hints
+from xyz.block.ftl.v1.schema import schema_pb2 as schemapb
 
 F = TypeVar("F", bound=Callable[..., Any])
 
-
 def verb(func: Optional[F] = None) -> Union[F, Callable[[F], F]]:
     def actual_decorator(fn: F) -> F:
-        # Get the actual types
         type_hints = get_type_hints(fn)
         sig = inspect.signature(fn)
         first_param = next(iter(sig.parameters))
