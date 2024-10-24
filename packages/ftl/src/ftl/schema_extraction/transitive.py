@@ -76,5 +76,3 @@ class TransitiveExtractor(ast.NodeVisitor):
             self.context.add_data(self.module_name, data)
             self.context.remove_needs_extraction(self.module_name, data.name)
 
-            print(f"Extracted Data instance for class '{class_name}': {data}")
-
