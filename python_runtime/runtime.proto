@@ -12,3 +12,9 @@ message RuntimeResponse {
         string error = 2;
     }
 }
+
+// Define the Runtime service
+service Runtime {
+    // Execute a verb in a module
+    rpc Execute(RuntimeRequest) returns (RuntimeResponse) {}
+}

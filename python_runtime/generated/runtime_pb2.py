@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rruntime.proto\"P\n\x0eRuntimeRequest\x12\x0e\n\x06module\x18\x01 \x01(\t\x12\x0c\n\x04verb\x18\x02 \x01(\t\x12\x14\n\x07payload\x18\x03 \x01(\x0cH\x00\x88\x01\x01\x42\n\n\x08_payload\"?\n\x0fRuntimeResponse\x12\x11\n\x07payload\x18\x01 \x01(\x0cH\x00\x12\x0f\n\x05\x65rror\x18\x02 \x01(\tH\x00\x42\x08\n\x06resultb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rruntime.proto\"P\n\x0eRuntimeRequest\x12\x0e\n\x06module\x18\x01 \x01(\t\x12\x0c\n\x04verb\x18\x02 \x01(\t\x12\x14\n\x07payload\x18\x03 \x01(\x0cH\x00\x88\x01\x01\x42\n\n\x08_payload\"?\n\x0fRuntimeResponse\x12\x11\n\x07payload\x18\x01 \x01(\x0cH\x00\x12\x0f\n\x05\x65rror\x18\x02 \x01(\tH\x00\x42\x08\n\x06result29\n\x07Runtime\x12.\n\x07\x45xecute\x12\x0f.RuntimeRequest\x1a\x10.RuntimeResponse\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,4 +35,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_RUNTIMEREQUEST']._serialized_end=97
   _globals['_RUNTIMERESPONSE']._serialized_start=99
   _globals['_RUNTIMERESPONSE']._serialized_end=162
+  _globals['_RUNTIME']._serialized_start=164
+  _globals['_RUNTIME']._serialized_end=221
 # @@protoc_insertion_point(module_scope)
