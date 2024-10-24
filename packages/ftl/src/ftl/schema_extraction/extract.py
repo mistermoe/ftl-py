@@ -52,9 +52,10 @@ def analyze_file(global_ctx: GlobalExtractionContext, file_path, analyzer_batch)
     """Analyze a single Python file using multiple analyzers in parallel."""
     module_name = os.path.splitext(os.path.basename(file_path))[0]
     file_ast = ast.parse(open(file_path).read())
+    local_ctx = global_ctx.init_local_context()
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [executor.submit(run_analyzer, analyzer_class, global_ctx.init_local_context(), module_name, file_path, file_ast) for analyzer_class in analyzer_batch]
+        futures = [executor.submit(run_analyzer, analyzer_class, local_ctx, module_name, file_path, file_ast) for analyzer_class in analyzer_batch]
 
         for future in concurrent.futures.as_completed(futures):
             try:
