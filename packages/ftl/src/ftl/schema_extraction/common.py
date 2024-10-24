@@ -72,12 +72,12 @@ def extract_basic_type(type_hint: Type[Any]) -> Optional[schemapb.Type]:
 
 
 def extract_class_type(local_ctx: LocalExtractionContext, type_hint: Type[Any]) -> Optional[schemapb.Type]:
-    ref = schemapb.Ref(name=type_hint.__name__)
+    ref = schemapb.Ref(name=type_hint.__name__, module=type_hint.__module__)
     local_ctx.add_needs_extraction(ref)
     return schemapb.Type(ref=ref)
 
 
 def extract_function_type(local_ctx: LocalExtractionContext, type_hint: Type[Any]) -> Optional[schemapb.Type]:
-    ref = schemapb.Ref(name=type_hint.__name__)
+    ref = schemapb.Ref(name=type_hint.__name__, module=type_hint.__module__)
     local_ctx.add_needs_extraction(ref)
     return schemapb.Type(ref=ref)

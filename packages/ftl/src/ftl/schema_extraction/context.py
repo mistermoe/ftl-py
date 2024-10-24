@@ -18,6 +18,10 @@ class GlobalExtractionContext:
             decl = schemapb.Verb()
             decl.ParseFromString(serialized_decl)
             deserialized_decls[ref_key] = decl
+        for ref_key, serialized_decl in self.data.items():
+            decl = schemapb.Data()
+            decl.ParseFromString(serialized_decl)
+            deserialized_decls[ref_key] = decl
         return deserialized_decls
 
     def init_local_context(self):
@@ -43,7 +47,7 @@ class LocalExtractionContext:
         self.data[ref_key] = data.SerializeToString()
 
     def add_needs_extraction(self, ref: schemapb.Ref):
-        ref_key = RefKey(module=ref.name, name=ref.module)
+        ref_key = RefKey(module=ref.module, name=ref.name)
         # Only add the key if it doesn't exist in the dictionary, not if it's False
         if ref_key not in self.needs_extraction:
             self.needs_extraction[ref_key] = True

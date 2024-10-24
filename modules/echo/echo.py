@@ -17,4 +17,3 @@ class EchoResponse:
 @export
 def echo(req: EchoRequest) -> EchoResponse:
     return EchoResponse(message=f"ayooo, {req.name}!")
-.

@@ -5,22 +5,22 @@ import os
 import sys
 from contextlib import contextmanager
 
-from ftl.constants import FTL_SCHEMA_EXTRACTION_MODE_ENV_VAR
-from ftl.schema_extraction import VerbExtractor, GlobalExtractionContext
+from ftl.schema_extraction import VerbExtractor, GlobalExtractionContext, TransitiveExtractor
 
-analyzers = [VerbExtractor]
+# analyzers is now a list of lists, where each sublist contains analyzers that can run in parallel
+analyzers = [
+    [VerbExtractor],
+    [TransitiveExtractor],
+]
 
 @contextmanager
 def set_analysis_mode(path):
     original_sys_path = sys.path.copy()
     sys.path.append(path)
-
-    os.environ[FTL_SCHEMA_EXTRACTION_MODE_ENV_VAR] = "true"
     try:
         yield
     finally:
         sys.path = original_sys_path
-        os.environ[FTL_SCHEMA_EXTRACTION_MODE_ENV_VAR] = "false"
 
 def analyze_directory(module_dir):
     """Analyze all Python files in the given module_dir in parallel."""
@@ -32,28 +32,29 @@ def analyze_directory(module_dir):
             if filename.endswith(".py"):
                 file_paths.append(os.path.join(dirpath, filename))
 
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        future_to_file = {executor.submit(analyze_file, global_ctx, file_path): file_path for file_path in file_paths}
+    for analyzer_batch in analyzers:
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            future_to_file = {executor.submit(analyze_file, global_ctx, file_path, analyzer_batch): file_path for file_path in file_paths}
 
-        for future in concurrent.futures.as_completed(future_to_file):
-            file_path = future_to_file[future]
-            try:
-                future.result()  # raise any exception that occurred in the worker process
-            except Exception as exc:
-                print(f"File {file_path} generated an exception: {exc};")
-            else:
-                print(f"File {file_path} analyzed successfully.")
+            for future in concurrent.futures.as_completed(future_to_file):
+                file_path = future_to_file[future]
+                try:
+                    future.result()  # raise any exception that occurred in the worker process
+                except Exception as exc:
+                    print(f"failed to extract schema from {file_path}: {exc};")
+                # else:
+                #     print(f"File {file_path} analyzed successfully.")
 
     for ref_key, decl in global_ctx.deserialize().items():
         print(f"Extracted Decl:\n{decl}")
 
-def analyze_file(global_ctx: GlobalExtractionContext, file_path):
+def analyze_file(global_ctx: GlobalExtractionContext, file_path, analyzer_batch):
     """Analyze a single Python file using multiple analyzers in parallel."""
     module_name = os.path.splitext(os.path.basename(file_path))[0]
     file_ast = ast.parse(open(file_path).read())
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [executor.submit(run_analyzer, analyzer_class, global_ctx.init_local_context(), module_name, file_path, file_ast) for analyzer_class in analyzers]
+        futures = [executor.submit(run_analyzer, analyzer_class, global_ctx.init_local_context(), module_name, file_path, file_ast) for analyzer_class in analyzer_batch]
 
         for future in concurrent.futures.as_completed(futures):
             try:
