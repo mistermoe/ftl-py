@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ftl.decorators import verb
+from ftl.decorators import verb, export
 
 
 @dataclass
@@ -14,5 +14,7 @@ class EchoResponse:
 
 
 @verb
+@export
 def echo(req: EchoRequest) -> EchoResponse:
     return EchoResponse(message=f"ayooo, {req.name}!")
+.
