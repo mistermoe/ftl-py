@@ -30,10 +30,6 @@ class VerbExtractor(ast.NodeVisitor):
         if func is None:
             return
 
-        func = self.load_function(node.name)
-        if func is None:
-            return
-
         if not getattr(func, "_is_ftl_verb", False):
             print(f"Function '{node.name}' does not have the 'verb' decorator")
             return

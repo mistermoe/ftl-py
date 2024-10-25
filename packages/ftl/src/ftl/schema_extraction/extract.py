@@ -5,13 +5,18 @@ import os
 import sys
 from contextlib import contextmanager
 
-from ftl.schema_extraction import VerbExtractor, GlobalExtractionContext, TransitiveExtractor
+from ftl.schema_extraction import (
+    GlobalExtractionContext,
+    TransitiveExtractor,
+    VerbExtractor,
+)
 
 # analyzers is now a list of lists, where each sublist contains analyzers that can run in parallel
 analyzers = [
     [VerbExtractor],
     [TransitiveExtractor],
 ]
+
 
 @contextmanager
 def set_analysis_mode(path):
@@ -21,6 +26,7 @@ def set_analysis_mode(path):
         yield
     finally:
         sys.path = original_sys_path
+
 
 def analyze_directory(module_dir):
     """Analyze all Python files in the given module_dir in parallel."""
@@ -34,7 +40,12 @@ def analyze_directory(module_dir):
 
     for analyzer_batch in analyzers:
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            future_to_file = {executor.submit(analyze_file, global_ctx, file_path, analyzer_batch): file_path for file_path in file_paths}
+            future_to_file = {
+                executor.submit(
+                    analyze_file, global_ctx, file_path, analyzer_batch
+                ): file_path
+                for file_path in file_paths
+            }
 
             for future in concurrent.futures.as_completed(future_to_file):
                 file_path = future_to_file[future]
@@ -48,13 +59,25 @@ def analyze_directory(module_dir):
     for ref_key, decl in global_ctx.deserialize().items():
         print(f"Extracted Decl:\n{decl}")
 
+
 def analyze_file(global_ctx: GlobalExtractionContext, file_path, analyzer_batch):
     """Analyze a single Python file using multiple analyzers in parallel."""
     module_name = os.path.splitext(os.path.basename(file_path))[0]
     file_ast = ast.parse(open(file_path).read())
+    local_ctx = global_ctx.init_local_context()
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [executor.submit(run_analyzer, analyzer_class, global_ctx.init_local_context(), module_name, file_path, file_ast) for analyzer_class in analyzer_batch]
+        futures = [
+            executor.submit(
+                run_analyzer,
+                analyzer_class,
+                local_ctx,
+                module_name,
+                file_path,
+                file_ast,
+            )
+            for analyzer_class in analyzer_batch
+        ]
 
         for future in concurrent.futures.as_completed(futures):
             try:
@@ -62,13 +85,17 @@ def analyze_file(global_ctx: GlobalExtractionContext, file_path, analyzer_batch)
             except Exception as exc:
                 print(f"Analyzer generated an exception: {exc} in {file_path}")
 
+
 def run_analyzer(analyzer_class, context, module_name, file_path, file_ast):
     analyzer = analyzer_class(context, module_name, file_path)
     analyzer.visit(file_ast)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("module_dir", type=str, help="The Python module directory to analyze.")
+    parser.add_argument(
+        "module_dir", type=str, help="The Python module directory to analyze."
+    )
     args = parser.parse_args()
 
     dir = args.module_dir
